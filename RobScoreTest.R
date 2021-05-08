@@ -1,21 +1,23 @@
 # In this code we will implement the robust Wald test introduced by Markatou and Hettmansperger
 
-n=100
-w1 = rnorm(n)
-w2 = rnorm(n)
-z1 = rnorm(n)
-z2 = rnorm(n)
 
-X = 1 + 1*w1 + 2*w2 + 0*z1 + 0*z2 + rnorm(n)
-Y = 1*X + 2*w1 + 1*w2 + rnorm(n)
-
-Y = Y
-X = X
-Z = cbind(z1, z2)
-W = cbind(w1, w2)
-beta0 =0
-weight.vector = rep(1,n)
-tukey.c = 4.68
+# You can use this as an example
+# n=100
+# w1 = rnorm(n)
+# w2 = rnorm(n)
+# z1 = rnorm(n)
+# z2 = rnorm(n)
+# 
+# X = 1 + 1*w1 + 2*w2 + 0*z1 + 0*z2 + rnorm(n)
+# Y = 1*X + 2*w1 + 1*w2 + rnorm(n)
+# 
+# Y = Y
+# X = X
+# Z = cbind(z1, z2)
+# W = cbind(w1, w2)
+# beta0 =0
+# weight.vector = rep(1,n)
+# tukey.c = 4.68
 
 RobScoreTest(Y,
              X,
