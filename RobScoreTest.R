@@ -2,6 +2,7 @@
 
 
 # You can use this as an example
+
 # n=100
 # w1 = rnorm(n)
 # w2 = rnorm(n)
