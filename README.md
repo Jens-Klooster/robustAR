@@ -6,7 +6,7 @@ To install `robustAR`, use the function `install_github()` of the `devtools` pac
 
 ```R
 install.packages("devtools")
-devtools::install_github(devtools::install_github("Jens-Klooster/robustAR", build_vignettes = TRUE, force = TRUE))
+devtools::install_github("Jens-Klooster/robustAR", build_vignettes = TRUE)
 library(robustAR)
 ```
 
