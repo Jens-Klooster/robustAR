@@ -1,0 +1,145 @@
+---
+title: "robustAR: introduction with example"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{RobustAR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette gives a high level overview on how to use the robustAR R package to use the outlier robust AR test introduced by Klooster and Zhelonkin (202X):
+
+## How to compute the robust AR statistic
+We start by loading the R package.
+
+```{r setup}
+library(robustAR)
+```
+
+### Generating data
+Next, we generate some sample data as follows.
+```{r}
+set.seed(1)
+beta <- 1
+n <- 250
+eps1 <- rnorm(n)
+eps2 <- 0.5*eps1 + 0.5*rnorm(n)
+W <- rnorm(n)
+Z <- rnorm(n) 
+X <- 0.15 * Z + 1 * W + eps1
+Y <- beta * X + 2 * W + eps2
+```
+
+The (first-stage) F statistic is below 10, indicating that the instrument is weak.
+```{r}
+anova(lm(X ~ 0 + W), lm(X ~ 0 + W + Z))
+```
+### Computing the (robust) AR statistic
+ We can still do reliable inference using the classical and robust AR test. We compute the robust AR statistic by giving the data as input, a hypothesized beta value. We use Tukey's biweight function as downweighting function and use weights based on the hat matrix.
+```{r}
+robustAR(Y = Y, X = X, Z = Z, W = W, beta0 = 1, 
+         type = "Tukey", 
+         weighting = "hat")
+AR(Y = Y, X = X, Z = Z, W = W, beta0 = 1)
+```
+In both cases, the classical and robust AR test do not reject the null hypothesis as their statistics are below 3.84.
+
+## The effect of an outlier
+Now we add an outlier to the data by corrupting the first row of the data as follows: 
+```{r}
+Y.corrupted <- Y
+X.corrupted <- X
+Z.corrupted <- Z
+W.corrupted <- W
+Y.corrupted[1] <- 2
+X.corrupted[1] <- 5
+Z.corrupted[1] <- 10
+W.corrupted[1] <- 2
+```
+Then we rerun the test statistics again
+```{r}
+AR(Y = Y.corrupted, X = X.corrupted, Z = Z.corrupted, W = W.corrupted, beta0 = 1)
+robustAR(Y = Y.corrupted, X = X.corrupted, Z = Z.corrupted, W = W.corrupted, beta0 = 1, 
+         type = "Tukey", 
+         weighting = "hat")
+```
+Now the test statistic of the classical AR statistic jumps up and the would reject the null hypothesis. However, the robust AR test is not affected much by the outlier. 
+
+
+
+## Constructing a confidence set
+For the classical and robust AR tests, confidence sets can be constructed by test inversion. The researcher specifies a grid of beta values and then for each beta value we check whether the test rejects the null hypothesis or not.
+For the classical AR statistic it looks like this:
+```{r}
+alpha = 0.05
+betagrid <- seq(-6, 4, 0.1)
+AR.confset <- rep(-Inf, length(betagrid))
+for(i in 1:length(betagrid)){
+  beta0 <- betagrid[i]
+  AR.obj <- AR(Y = Y, X = X, Z = Z, W = W, beta0 = beta0)
+  if(AR.obj < qchisq(0.95, 1)){
+    AR.confset[i] <- beta0
+  }
+}
+AR.confset
+```
+The beta values that are not -Inf are in our confidence set. 
+
+For the robust AR test, we created a function that allows the user to give the beta grid as an input:
+
+```{r}
+robustAR.confset <- robustAR.conf(Y = Y, X = X, Z = Z, W = W, betagrid = betagrid, alpha = 0.05,
+                                  type = "Tukey",
+                                  weighting = "hat")
+robustAR.confset$conf.set
+```
+The beta values that are not -Inf are in the confidence set.
+
+## Effect of an outlier on the confidence set
+We now construct the confidence sets again using the corrupted data.
+```{r}
+AR.confset.corrupted <- rep(-Inf, length(betagrid))
+for(i in 1:length(betagrid)){
+  beta0 <- betagrid[i]
+  AR.obj <- AR(Y = Y.corrupted, X = X.corrupted, Z = Z.corrupted, W = W.corrupted, beta0 = beta0)
+  if(AR.obj < qchisq(0.95, 1)){
+    AR.confset.corrupted[i] <- beta0
+  }
+}
+AR.confset.corrupted
+
+robustAR.confset.corrupted <- robustAR.conf(Y = Y.corrupted, 
+                                  X = X.corrupted, 
+                                  Z = Z.corrupted, 
+                                  W = W.corrupted, 
+                                  betagrid = betagrid, 
+                                  alpha = 0.05,
+                                  type = "Tukey",
+                                  weighting = "hat")
+robustAR.confset.corrupted$conf.set
+```
+Note that now beta = 1 is not in the confidence set of the classical AR test anymore. Therefore, as we showed earlier we reject the null hypothesis when the outlier is in the data. However, the confidence set of the robust AR test remains reliable.
+
+Note that the first-stage F is also affected by the outlier and the instrument is now "seemingly" strong (due to the outlier), as the F-statistic is above 10.
+
+
+```{r}
+anova(lm(X.corrupted ~ 0 + W.corrupted), lm(X.corrupted ~ 0 + W.corrupted + Z.corrupted))
+```
+
+
+## When the model contains a constant
+If the model contains a constant, we can simply add it by including a column of ones in the control variables:
+```{r}
+AR(Y = Y, X = X, Z = Z, W = cbind(1,W), beta0 = 1)
+robustAR(Y = Y, X = X, Z = Z, W = cbind(1,W), beta0 = 1, 
+         type = "Tukey", 
+         weighting = "hat")
+```
