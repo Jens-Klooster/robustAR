@@ -6,8 +6,35 @@ To install `robustAR`, use the function `install_github()` of the `devtools` pac
 
 ```R
 install.packages("devtools")
-devtools::install_github("Jens-Klooster/robustAR")
+devtools::install_github(devtools::install_github("Jens-Klooster/robustAR", build_vignettes = TRUE, force = TRUE))
 library(robustAR)
 ```
 
-After the installation, the robustAR vignette provides further examples of how to use the function `robustAR`.
+After the installation, the robustAR vignette provides further examples of how to use the function `robustAR`. The vignette can be opened as follows
+
+```R
+browseVignettes(package="robustAR")
+```
+and by then clicking on HTML.
+
+## Basic Example
+
+```R
+# First we generate data
+set.seed(1)
+beta <- 1
+n <- 250
+eps1 <- rnorm(n)
+eps2 <- 0.5*eps1 + 0.5*rnorm(n)
+W <- rnorm(n)
+Z <- rnorm(n) 
+X <- 0.15 * Z + 1 * W + eps1
+Y <- beta * X + 2 * W + eps2
+```
+
+The robust AR statistic based on Tukey's biweight function and hat matrix weights can then be computed as follows
+```R
+robustAR(Y = Y, X = X, Z = Z, W = W, beta0 = 1, 
+         type = "Tukey", 
+         weighting = "hat")
+```
