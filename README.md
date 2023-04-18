@@ -10,12 +10,14 @@ devtools::install_github("Jens-Klooster/robustAR", build_vignettes = TRUE)
 library(robustAR)
 ```
 
-After the installation, the robustAR vignette provides further examples of how to use the function `robustAR`. The vignette can be opened as follows
+After the installation, the robustAR vignette provides further examples of how to use the functions `robustAR` and `robustAR.conf`, which allow the user to compute robust AR test statistics and confidence sets. The vignette can be opened as follows
 
 ```R
 browseVignettes(package="robustAR")
 ```
 and by then clicking on HTML.
+
+Here we provide a very basic example. More details can be found in the Vignette.
 
 ## Basic Example
 
