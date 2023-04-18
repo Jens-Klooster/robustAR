@@ -20,15 +20,20 @@ and by then clicking on HTML.
 ## Basic Example
 
 ```R
-# First we generate data
-set.seed(1)
+# True beta value
 beta <- 1
+# amount of observations we generate
 n <- 250
+# we generate correlated error terms
 eps1 <- rnorm(n)
 eps2 <- 0.5*eps1 + 0.5*rnorm(n)
+# we generate a control variable
 W <- rnorm(n)
+# we generate an instrumental variable
 Z <- rnorm(n) 
+# first-stage equation
 X <- 0.15 * Z + 1 * W + eps1
+# second-stage equation
 Y <- beta * X + 2 * W + eps2
 ```
 
