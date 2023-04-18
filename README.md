@@ -17,12 +17,12 @@ browseVignettes(package="robustAR")
 ```
 and by then clicking on HTML.
 
-Here we provide a very basic example. More details can be found in the Vignette.
+Here we provide a very basic example. More details can be found in the vignette.
 
 ## Basic Example
 
 ```R
-# True beta value
+# true beta value
 beta <- 1
 
 # amount of observations we generate
